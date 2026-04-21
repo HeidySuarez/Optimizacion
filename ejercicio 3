@@ -1,0 +1,54 @@
+import numpy as np
+from scipy.integrate import odeint
+from scipy.optimize import fsolve
+
+# Datos
+N = 10000
+beta = 0.00003
+gamma = 0.1
+I0 = 50
+
+# Modelo SIS
+def modelo_SIS(I, t):
+    return beta * (N - I) * I - gamma * I
+
+# Equilibrio
+def equilibrio(I):
+    return beta * (N - I) * I - gamma * I
+
+# Resolver equilibrio
+I_eq = fsolve(equilibrio, 5000)[0]
+
+# Tiempo
+t = np.linspace(0, 200, 1000)
+
+# Solución
+sol = odeint(modelo_SIS, I0, t)
+I_sol = sol[:, 0]
+
+print("Epidemia en una ciudad\n")
+
+print("Parámetros:")
+print(f"N = {N}")
+print(f"beta = {beta}")
+print(f"gamma = {gamma}")
+print(f"I(0) = {I0}\n")
+
+print(f"{'Día':<10}{'Infectados I(t)':>20}{'Susceptibles S(t)':>20}")
+print("-" * 50)
+
+dias = [0, 10, 20, 30, 50, 75, 100, 150, 200]
+for d in dias:
+    idx = int(d / 200 * (len(t)-1))
+    I_val = I_sol[idx]
+    S_val = N - I_val
+    print(f"{d:<10}{I_val:>20.2f}{S_val:>20.2f}")
+
+print("\nEquilibrios:")
+print(f"I* = 0")
+print(f"I* = {I_eq:.4f}")
+
+# Verificación
+print("\nVerificación:")
+print(f"dI/dt en I* = 0      : {equilibrio(0):.6f}")
+print(f"dI/dt en I* = {I_eq:.2f} : {equilibrio(I_eq):.6f}")
